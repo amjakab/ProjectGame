@@ -2,7 +2,17 @@
 import React, { useState } from 'react';
 import Game from './components/Game';
 import { GameStatus } from './types';
-import { GoogleGenAI } from "@google/genai";
+
+const MOCK_NARRATIVES = [
+  "Brady was finally apprehended after his truck's 'Fresh Pine' air freshener gave away his position in a crowded mall parking lot.",
+  "Police report that over 400 hockey pucks were recovered from the scene. Brady claims he was just 'practicing his slap shot' at 90mph.",
+  "The chase ended when Brady tried to use a dumpster as a ramp. Physics was not on his side today.",
+  "Authorities were baffled to find the garbage truck was actually carrying nothing but high-end sports memorabilia and maple syrup.",
+  "Brady lead the pursuit through three counties before stopping at a red light because he 'doesn't believe in breaking traffic laws.'",
+  "The intercept was successful, though officers are still picking coffee grounds out of their tactical gear.",
+  "Witnesses say Brady was seen throwing pucks with 'pro-level accuracy' while steering with his knees and eating a poutine.",
+  "The high-speed pursuit concluded peacefully when the garbage truck ran out of diesel right in front of a Tim Hortons."
+];
 
 const App: React.FC = () => {
   const [status, setStatus] = useState<GameStatus>(GameStatus.START);
@@ -16,22 +26,15 @@ const App: React.FC = () => {
     setNarrative("");
   };
 
-  const endGame = async (finalScore: number) => {
+  const endGame = (finalScore: number) => {
     setScore(finalScore);
     if (finalScore > highScore) setHighScore(finalScore);
     setStatus(GameStatus.GAMEOVER);
     
-    try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: `Write a short, cinematic, action-packed news snippet (max 2 sentences) about a rogue garbage truck driver named Brady who lead a high-stakes highway chase and fended off the police with heavy-duty pucks. Final score: ${finalScore}.`,
-      });
-      setNarrative(response.text || "The ultimate high-speed chase has finally come to an end.");
-    } catch (err) {
-      console.error("Narrative failed", err);
-      setNarrative("Brady's run for glory ended in a cloud of diesel and debris.");
-    }
+    // Select a random funny narrative locally
+    const randomIndex = Math.floor(Math.random() * MOCK_NARRATIVES.length);
+    const report = MOCK_NARRATIVES[randomIndex] + ` Final Score: ${finalScore.toLocaleString()}.`;
+    setNarrative(report);
   };
 
   return (
@@ -72,7 +75,7 @@ const App: React.FC = () => {
             <div className="text-xs text-zinc-500 tracking-[0.3em] uppercase">DISTANCE SECURED</div>
           </div>
           
-          <div className="p-6 bg-black/40 rounded-2xl border border-white/5 text-sm text-zinc-300 leading-relaxed font-medium">
+          <div className="p-6 bg-black/40 rounded-2xl border border-white/5 text-sm text-zinc-300 leading-relaxed font-medium min-h-[80px] flex items-center justify-center">
             {narrative || "Analyzing intercept data..."}
           </div>
 
